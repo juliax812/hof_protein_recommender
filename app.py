@@ -896,7 +896,7 @@ with st.expander("Protein surface descriptor details"):
         "largest_hydrophobic_patch_area_A2",
     ]
     pshow_cols = [c for c in pshow_cols if c in proteins.columns]
-    st.dataframe(pd.DataFrame([protein_row[pshow_cols]]), use_container_width=True)
+    st.table(pd.DataFrame([protein_row[pshow_cols]]))
 
 st.markdown("---")
 
@@ -926,7 +926,7 @@ table_cols = [
     "has_literature_eval",
 ]
 table_cols = [c for c in table_cols if c in df.columns]
-st.dataframe(df[table_cols], use_container_width=True)
+st.table(df[table_cols])
 
 csv = df[table_cols].to_csv(index=False).encode("utf-8")
 st.download_button(
@@ -1014,7 +1014,7 @@ for i, row in df.iterrows():
             "pred_mesoporous_hosting",
         ]
         metric_cols = [c for c in metric_cols if c in row.index]
-        st.dataframe(pd.DataFrame({"metric": metric_cols, "value": [row.get(c) for c in metric_cols]}), use_container_width=True)
+        st.table(pd.DataFrame({"metric": metric_cols, "value": [row.get(c) for c in metric_cols]}))
 
     with tab3:
         st.pyplot(radar_chart(row))
