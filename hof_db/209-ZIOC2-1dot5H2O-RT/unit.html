@@ -1,0 +1,48 @@
+<div id="3dmolviewer_1776687152973688"  style="position: relative; width: 800px; height: 500px;">
+        <p id="3dmolwarning_1776687152973688" style="background-color:#ffcccc;color:black">3Dmol.js failed to load for some reason.  Please check your browser console for error messages.<br></p>
+        </div>
+<script>
+
+var loadScriptAsync = function(uri){
+  return new Promise((resolve, reject) => {
+    //this is to ignore the existence of requirejs amd
+    var savedexports, savedmodule;
+    if (typeof exports !== 'undefined') savedexports = exports;
+    else exports = {}
+    if (typeof module !== 'undefined') savedmodule = module;
+    else module = {}
+
+    var tag = document.createElement('script');
+    tag.src = uri;
+    tag.async = true;
+    tag.onload = () => {
+        exports = savedexports;
+        module = savedmodule;
+        resolve();
+    };
+  var firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+});
+};
+
+if(typeof $3Dmolpromise === 'undefined') {
+$3Dmolpromise = null;
+  $3Dmolpromise = loadScriptAsync('https://cdn.jsdelivr.net/npm/3dmol@2.5.4/build/3Dmol-min.js');
+}
+
+var viewer_1776687152973688 = null;
+var warn = document.getElementById("3dmolwarning_1776687152973688");
+if(warn) {
+    warn.parentNode.removeChild(warn);
+}
+$3Dmolpromise.then(function() {
+viewer_1776687152973688 = $3Dmol.createViewer(document.getElementById("3dmolviewer_1776687152973688"),{backgroundColor:"white"});
+viewer_1776687152973688.zoomTo();
+	viewer_1776687152973688.addModel("# generated using pymatgen\ndata_H15C13(NO2)2\n_symmetry_space_group_name_H-M   'P 1'\n_cell_length_a   9.37740000\n_cell_length_b   11.01700000\n_cell_length_c   6.89550000\n_cell_angle_alpha   94.03400000\n_cell_angle_beta   107.45900000\n_cell_angle_gamma   67.43600000\n_symmetry_Int_Tables_number   1\n_chemical_formula_structural   H15C13(NO2)2\n_chemical_formula_sum   'H30 C26 N4 O8'\n_cell_volume   626.73115159\n_cell_formula_units_Z   2\nloop_\n _symmetry_equiv_pos_site_id\n _symmetry_equiv_pos_as_xyz\n  1  'x, y, z'\nloop_\n _atom_site_type_symbol\n _atom_site_label\n _atom_site_symmetry_multiplicity\n _atom_site_fract_x\n _atom_site_fract_y\n _atom_site_fract_z\n _atom_site_occupancy\n  H  H4B  1  0.83590000  0.35720000  0.32460000  1\n  H  H5B  1  0.74930000  0.47250000  0.00880000  1\n  H  H5A  1  0.29520000  0.47390000  0.15990000  1\n  H  H4A  1  0.20050000  0.58970000  0.84670000  1\n  H  H2A  1  0.46500000  0.80990000  0.08080000  1\n  H  H1A  1  0.69680000  0.62110000  0.47800000  1\n  H  H9A  1  0.88000000  0.68800000  0.68930000  1\n  H  H10A  1  0.62490000  0.83950000  0.84290000  1\n  H  H10B  1  0.76910000  0.70660000  0.93950000  1\n  H  H11A  1  0.77200000  0.92120000  0.10560000  1\n  H  H11B  1  0.93810000  0.81170000  0.09570000  1\n  H  H12A  1  0.74410000  0.03510000  0.82140000  1\n  H  H12B  1  0.93250000  0.98660000  0.92660000  1\n  H  H2A1  1  0.82900000  0.92190000  0.57600000  1\n  H  H2A2  1  0.97940000  0.83080000  0.71240000  1\n  H  H1B  1  0.51190000  0.19070000  0.64650000  1\n  H  H9B  1  0.40030000  0.08140000  0.45940000  1\n  H  H10C  1  0.11140000  0.31020000  0.30260000  1\n  H  H10D  1  0.26620000  0.25860000  0.22530000  1\n  H  H11C  1  0.02170000  0.19980000  0.03500000  1\n  H  H11D  1  0.19770000  0.09830000  0.04940000  1\n  H  H12C  1  0.99180000  0.07950000  0.24570000  1\n  H  H12D  1  0.14330000  0.96490000  0.20810000  1\n  H  H2B1  1  0.13300000  0.09190000  0.54420000  1\n  H  H2B2  1  0.26660000  0.97520000  0.51700000  1\n  H  H2B  1  0.56120000  0.14630000  0.08390000  1\n  H  H1WA  1  0.91320000  0.36740000  0.64350000  1\n  H  H1WB  1  0.01620000  0.42570000  0.76120000  1\n  H  H2WA  1  0.02940000  0.52270000  0.44980000  1\n  H  H2WB  1  0.09160000  0.61510000  0.42790000  1\n  C  C7B  1  0.75430000  0.16730000  0.43190000  1\n  C  C3B  1  0.70390000  0.24530000  0.23400000  1\n  C  C4B  1  0.76280000  0.33900000  0.21400000  1\n  C  C5B  1  0.71170000  0.40780000  0.02300000  1\n  C  C6B  1  0.60420000  0.37720000  0.85700000  1\n  C  C13B  1  0.55120000  0.43860000  0.66000000  1\n  C  C13A  1  0.50000000  0.50000000  0.50000000  1\n  C  C6A  1  0.44080000  0.57020000  0.31000000  1\n  C  C5A  1  0.33060000  0.53970000  0.14400000  1\n  C  C4A  1  0.27450000  0.60860000  0.95600000  1\n  C  C3A  1  0.33010000  0.70540000  0.93300000  1\n  C  C7A  1  0.27090000  0.78200000  0.73300000  1\n  C  C2A  1  0.43570000  0.74040000  0.09600000  1\n  C  C1A  1  0.49640000  0.66980000  0.28300000  1\n  C  C8A  1  0.65810000  0.79700000  0.48800000  1\n  C  C9A  1  0.79790000  0.77670000  0.68400000  1\n  C  C10A  1  0.74090000  0.79180000  0.87600000  1\n  C  C11A  1  0.83170000  0.86970000  0.01500000  1\n  C  C12A  1  0.84360000  0.95820000  0.86600000  1\n  C  C1B  1  0.54380000  0.27830000  0.88100000  1\n  C  C8B  1  0.31380000  0.21550000  0.66500000  1\n  C  C9B  1  0.29350000  0.13790000  0.47100000  1\n  C  C10B  1  0.19590000  0.23230000  0.27600000  1\n  C  C11B  1  0.12520000  0.14630000  0.12800000  1\n  C  C12B  1  0.10500000  0.05340000  0.25500000  1\n  C  C2B  1  0.59640000  0.21220000  0.06800000  1\n  N  N1A  1  0.60590000  0.69420000  0.45550000  1\n  N  N2A  1  0.87250000  0.87270000  0.69350000  1\n  N  N1B  1  0.44320000  0.25260000  0.70330000  1\n  N  N2B  1  0.19970000  0.05730000  0.46680000  1\n  O  O1B  1  0.87980000  0.16920000  0.56430000  1\n  O  O2B  1  0.66710000  0.11120000  0.45430000  1\n  O  O1A  1  0.15640000  0.76740000  0.59570000  1\n  O  O2A  1  0.33490000  0.86170000  0.71920000  1\n  O  O3A  1  0.59960000  0.89570000  0.37320000  1\n  O  O3B  1  0.22130000  0.24190000  0.76860000  1\n  O  O1W  1  0.92330000  0.43960000  0.67790000  1\n  O  O2W  1  0.06900000  0.55070000  0.37300000  1\n","cif");
+	viewer_1776687152973688.setStyle({"sphere": {"radius": 0.3, "colorscheme": "Jmol"}, "stick": {"radius": 0.1, "colorscheme": "Jmol"}});
+	viewer_1776687152973688.addUnitCell();
+	viewer_1776687152973688.zoomTo();
+	viewer_1776687152973688.setBackgroundColor("#0e1117");
+viewer_1776687152973688.render();
+});
+</script>

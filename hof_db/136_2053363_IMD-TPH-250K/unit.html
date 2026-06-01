@@ -1,0 +1,48 @@
+<div id="3dmolviewer_1776687096928069"  style="position: relative; width: 800px; height: 500px;">
+        <p id="3dmolwarning_1776687096928069" style="background-color:#ffcccc;color:black">3Dmol.js failed to load for some reason.  Please check your browser console for error messages.<br></p>
+        </div>
+<script>
+
+var loadScriptAsync = function(uri){
+  return new Promise((resolve, reject) => {
+    //this is to ignore the existence of requirejs amd
+    var savedexports, savedmodule;
+    if (typeof exports !== 'undefined') savedexports = exports;
+    else exports = {}
+    if (typeof module !== 'undefined') savedmodule = module;
+    else module = {}
+
+    var tag = document.createElement('script');
+    tag.src = uri;
+    tag.async = true;
+    tag.onload = () => {
+        exports = savedexports;
+        module = savedmodule;
+        resolve();
+    };
+  var firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+});
+};
+
+if(typeof $3Dmolpromise === 'undefined') {
+$3Dmolpromise = null;
+  $3Dmolpromise = loadScriptAsync('https://cdn.jsdelivr.net/npm/3dmol@2.5.4/build/3Dmol-min.js');
+}
+
+var viewer_1776687096928069 = null;
+var warn = document.getElementById("3dmolwarning_1776687096928069");
+if(warn) {
+    warn.parentNode.removeChild(warn);
+}
+$3Dmolpromise.then(function() {
+viewer_1776687096928069 = $3Dmol.createViewer(document.getElementById("3dmolviewer_1776687096928069"),{backgroundColor:"white"});
+viewer_1776687096928069.zoomTo();
+	viewer_1776687096928069.addModel("# generated using pymatgen\ndata_H7C7(NO)2\n_symmetry_space_group_name_H-M   'P 1'\n_cell_length_a   9.64500000\n_cell_length_b   8.29320000\n_cell_length_c   9.84560000\n_cell_angle_alpha   90.00000000\n_cell_angle_beta   113.86400000\n_cell_angle_gamma   90.00000000\n_symmetry_Int_Tables_number   1\n_chemical_formula_structural   H7C7(NO)2\n_chemical_formula_sum   'H28 C28 N8 O8'\n_cell_volume   720.20183832\n_cell_formula_units_Z   4\nloop_\n _symmetry_equiv_pos_site_id\n _symmetry_equiv_pos_as_xyz\n  1  'x, y, z'\nloop_\n _atom_site_type_symbol\n _atom_site_label\n _atom_site_symmetry_multiplicity\n _atom_site_fract_x\n _atom_site_fract_y\n _atom_site_fract_z\n _atom_site_occupancy\n  H  H2  1  0.59340700  0.77475600  0.42339500  1.0\n  H  H2  1  0.90659300  0.27475600  0.07660500  1.0\n  H  H2  1  0.40659300  0.22524400  0.57660500  1.0\n  H  H2  1  0.09340700  0.72524400  0.92339500  1.0\n  H  H3  1  0.67880900  0.83466300  0.67498100  1.0\n  H  H3  1  0.82119100  0.33466300  0.82501900  1.0\n  H  H3  1  0.32119100  0.16533700  0.32501900  1.0\n  H  H3  1  0.17880900  0.66533700  0.17498100  1.0\n  H  H7  1  0.83021400  0.14269400  0.54457200  1.0\n  H  H7  1  0.66978600  0.64269400  0.95542800  1.0\n  H  H7  1  0.16978600  0.85730600  0.45542800  1.0\n  H  H7  1  0.33021400  0.35730600  0.04457200  1.0\n  H  H5  1  0.27846100  0.18057000  0.74733000  1.0\n  H  H5  1  0.22153900  0.68057000  0.75267000  1.0\n  H  H5  1  0.72153900  0.81943000  0.25267000  1.0\n  H  H5  1  0.77846100  0.31943000  0.24733000  1.0\n  H  H6  1  0.91324400  0.00879000  0.78945800  1.0\n  H  H6  1  0.58675600  0.50879000  0.71054200  1.0\n  H  H6  1  0.08675600  0.99121000  0.21054200  1.0\n  H  H6  1  0.41324400  0.49121000  0.28945800  1.0\n  H  H1A  1  0.19700000  0.03390000  0.91380000  1.0\n  H  H1A  1  0.30300000  0.53390000  0.58620000  1.0\n  H  H1A  1  0.80300000  0.96610000  0.08620000  1.0\n  H  H1A  1  0.69700000  0.46610000  0.41380000  1.0\n  H  H2A  1  0.06060000  0.24900000  0.51900000  1.0\n  H  H2A  1  0.43940000  0.74900000  0.98100000  1.0\n  H  H2A  1  0.93940000  0.75100000  0.48100000  1.0\n  H  H2A  1  0.56060000  0.25100000  0.01900000  1.0\n  C  C2  1  0.55566000  0.86589000  0.45404000  1.0\n  C  C2  1  0.94434000  0.36589000  0.04596000  1.0\n  C  C2  1  0.44434000  0.13411000  0.54596000  1.0\n  C  C2  1  0.05566000  0.63411000  0.95404000  1.0\n  C  C4  1  0.39413000  0.92777000  0.18410000  1.0\n  C  C4  1  0.10587000  0.42777000  0.31590000  1.0\n  C  C4  1  0.60587000  0.07223000  0.81590000  1.0\n  C  C4  1  0.89413000  0.57223000  0.68410000  1.0\n  C  C3  1  0.60645000  0.90151000  0.60456000  1.0\n  C  C3  1  0.89355000  0.40151000  0.89544000  1.0\n  C  C3  1  0.39355000  0.09849000  0.39544000  1.0\n  C  C3  1  0.10645000  0.59849000  0.10456000  1.0\n  C  C1  1  0.44917000  0.96456000  0.34852000  1.0\n  C  C1  1  0.05083000  0.46456000  0.15148000  1.0\n  C  C1  1  0.55083000  0.03544000  0.65148000  1.0\n  C  C1  1  0.94917000  0.53544000  0.84852000  1.0\n  C  C7  1  0.93035000  0.13351000  0.61600000  1.0\n  C  C7  1  0.56965000  0.63351000  0.88400000  1.0\n  C  C7  1  0.06965000  0.86649000  0.38400000  1.0\n  C  C7  1  0.43035000  0.36649000  0.11600000  1.0\n  C  C5  1  0.17720000  0.15447000  0.72727000  1.0\n  C  C5  1  0.32280000  0.65447000  0.77273000  1.0\n  C  C5  1  0.82280000  0.84553000  0.27273000  1.0\n  C  C5  1  0.67720000  0.34553000  0.22727000  1.0\n  C  C6  1  0.97582000  0.05991000  0.75008000  1.0\n  C  C6  1  0.52418000  0.55991000  0.74992000  1.0\n  C  C6  1  0.02418000  0.94009000  0.24992000  1.0\n  C  C6  1  0.47582000  0.44009000  0.25008000  1.0\n  N  N1  1  0.12994000  0.07430000  0.81695000  1.0\n  N  N1  1  0.37006000  0.57430000  0.68305000  1.0\n  N  N1  1  0.87006000  0.92570000  0.18305000  1.0\n  N  N1  1  0.62994000  0.42570000  0.31695000  1.0\n  N  N2  1  0.05759000  0.19177000  0.60435000  1.0\n  N  N2  1  0.44241000  0.69177000  0.89565000  1.0\n  N  N2  1  0.94241000  0.80823000  0.39565000  1.0\n  N  N2  1  0.55759000  0.30823000  0.10435000  1.0\n  O  O1  1  0.27519000  0.99569000  0.09876000  1.0\n  O  O1  1  0.22481000  0.49569000  0.40124000  1.0\n  O  O1  1  0.72481000  0.00431000  0.90124000  1.0\n  O  O1  1  0.77519000  0.50431000  0.59876000  1.0\n  O  O2  1  0.47174000  0.83030000  0.14679000  1.0\n  O  O2  1  0.02826000  0.33030000  0.35321000  1.0\n  O  O2  1  0.52826000  0.16970000  0.85321000  1.0\n  O  O2  1  0.97174000  0.66970000  0.64679000  1.0\n","cif");
+	viewer_1776687096928069.setStyle({"sphere": {"radius": 0.3, "colorscheme": "Jmol"}, "stick": {"radius": 0.1, "colorscheme": "Jmol"}});
+	viewer_1776687096928069.addUnitCell();
+	viewer_1776687096928069.zoomTo();
+	viewer_1776687096928069.setBackgroundColor("#0e1117");
+viewer_1776687096928069.render();
+});
+</script>
