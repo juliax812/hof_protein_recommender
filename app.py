@@ -856,7 +856,151 @@ def radar_chart(row):
 # Sidebar controls
 # ============================================================
 
+
 st.sidebar.title("HOF–Protein Recommender")
+
+# ============================================================
+# Landing page navigation
+# ============================================================
+
+if "nav_page" not in st.session_state:
+    st.session_state["nav_page"] = "Home"
+
+nav_page = st.sidebar.radio(
+    "Navigation",
+    ["Home", "Recommender"],
+    key="nav_page",
+)
+
+if nav_page == "Home":
+    st.markdown(
+        """
+        <style>
+        .hero {
+            background: linear-gradient(135deg, #f7fbff 0%, #ffffff 100%);
+            border: 1px solid #d9e2ec;
+            border-radius: 18px;
+            padding: 30px 34px;
+            margin-bottom: 22px;
+        }
+        .hero h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.55rem;
+            color: #111111 !important;
+        }
+        .hero p {
+            font-size: 1.08rem;
+            line-height: 1.65;
+            margin: 0;
+            color: #333333 !important;
+        }
+        .landing-card {
+            background: #ffffff !important;
+            border: 1px solid #dddddd;
+            border-radius: 14px;
+            padding: 17px 18px;
+            min-height: 165px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.04);
+        }
+        .landing-card h3 {
+            margin-top: 0;
+            font-size: 1.08rem;
+        }
+        .landing-card p {
+            color: #444444 !important;
+            line-height: 1.55;
+            font-size: 0.94rem;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        """
+        <div class="hero">
+          <h1>HOF–Protein Compatibility Recommender</h1>
+          <p>
+            A metric-only structural screening interface for prioritising
+            hydrogen-bonded organic frameworks for protein-facing applications.
+            The recommender separates growth-mediated encapsulation, surface-contact
+            compatibility and strict post-synthetic infiltration as distinct physical questions.
+          </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("HOF CIF rows", len(core))
+    c2.metric("Framework series", int(core["series_key_eval"].nunique()))
+    c3.metric("Protein profiles", len(proteins))
+    c4.metric("Pairwise rows", len(pairwise))
+
+    st.markdown("### Choose a screening route")
+
+    r1, r2, r3 = st.columns(3)
+
+    with r1:
+        st.markdown(
+            """
+            <div class="landing-card">
+              <h3>Growth-mediated encapsulation</h3>
+              <p>
+                Default route. Prioritises frameworks that may support protein incorporation
+                during HOF formation. Final pore aperture is not treated as a hard whole-protein
+                diffusion requirement.
+              </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with r2:
+        st.markdown(
+            """
+            <div class="landing-card">
+              <h3>Surface-contact compatibility</h3>
+              <p>
+                Screens for external or near-surface interaction hypotheses, including
+                immobilisation, interface contact and microenvironment effects. Whole-protein
+                pore entry is not required.
+              </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with r3:
+        st.markdown(
+            """
+            <div class="landing-card">
+              <h3>Strict post-synthetic infiltration</h3>
+              <p>
+                Advanced conservative route. Requires the limiting aperture and cavity
+                dimensions to exceed the selected protein dimensions. A fallback view shows
+                growth-mediated alternatives when no strict candidate is available.
+              </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("### Evidence boundaries")
+    st.info(
+        "Ranking uses only HOF and protein descriptors. Literature, family and framework-series "
+        "labels are used for display, filtering, grouping and validation; they are not scoring inputs."
+    )
+    st.caption(
+        "The interface supports candidate prioritisation and hypothesis generation. "
+        "It does not establish experimentally validated encapsulation, binding affinity or catalytic enhancement."
+    )
+
+    if st.button("Open recommender", type="primary"):
+        st.session_state["nav_page"] = "Recommender"
+        st.rerun()
+
+    st.stop()
 
 protein_labels = []
 for _, r in proteins.iterrows():
