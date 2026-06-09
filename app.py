@@ -1,6 +1,7 @@
 
 import os
 import re
+import unicodedata
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -172,7 +173,8 @@ PROTEIN_PATH = first_existing([
 ])
 
 RECLASSIFIED_WORKBOOK = first_existing([
-    "HOF_DATABASE_framework_series_family_reclassified.xlsx",
+    "HOF_DATABASE_FINAL_CURATED_V1.xlsx",
+    "HOF_DATABASE_framework_series_family_reclassified_LITERATURE_PATCHED.xlsx",
     "HOF_DATABASE_framework_series_family_reclassified.xlsx",
 ])
 
@@ -300,7 +302,7 @@ def get_series_label(row):
     return get_series_key(row)
 
 def get_family_label(row):
-    for c in ["family_revised", "family_broad_revised", "family", "family_original"]:
+    for c in ["display_group_final", "broad_family_final", "family_revised", "family_broad_revised", "family", "family_original"]:
         if c in row.index and pd.notna(row[c]) and str(row[c]).strip():
             return str(row[c])
     return "Unclassified/Other"
@@ -337,16 +339,41 @@ def get_protein_id_candidates(protein_row):
             candidates.append(str(protein_row[c]).strip())
     return list(dict.fromkeys(candidates))
 
+def _normalise_3d_folder(value):
+    return unicodedata.normalize("NFKC", str(value)).strip().casefold()
+
+def _normalise_3d_folder_loose(value):
+    text = unicodedata.normalize("NFKD", str(value))
+    return "".join(ch for ch in text if ch.isalnum()).casefold()
+
 def find_html_views(cif_filename):
+    """Return only the three HTML views belonging to the selected CIF.
+
+    The previous implementation used substring matching. For a short CIF stem
+    such as `208`, that also returned folders such as `168_2087502_HOF-30(E)`.
+    This function uses exact normalised folder equality and an unambiguous
+    loose-normalisation fallback.
+    """
     if HOF_DB_DIR is None or not os.path.exists(HOF_DB_DIR):
         return []
-    key = str(cif_filename).replace(".cif", "")
-    hits = []
-    for p in Path(HOF_DB_DIR).rglob("*.html"):
-        ps = str(p)
-        if key in ps:
-            hits.append(ps)
-    return sorted(hits)
+
+    stem = Path(str(cif_filename)).stem
+    root = Path(HOF_DB_DIR)
+    folders = [p for p in root.iterdir() if p.is_dir()]
+
+    exact = [p for p in folders if _normalise_3d_folder(p.name) == _normalise_3d_folder(stem)]
+    selected = exact
+
+    if not selected:
+        loose = [p for p in folders if _normalise_3d_folder_loose(p.name) == _normalise_3d_folder_loose(stem)]
+        if len(loose) == 1:
+            selected = loose
+
+    if len(selected) != 1:
+        return []
+
+    allowed = {"super.html", "unit.html", "wire.html"}
+    return sorted(str(p) for p in selected[0].glob("*.html") if p.name in allowed)
 
 # ============================================================
 # Load data
@@ -396,6 +423,20 @@ def load_data():
             "family_original",
             "family_revised",
             "family_broad_revised",
+            "broad_family_final",
+            "display_group_final",
+            "grouping_level",
+            "grouping_basis",
+            "grouping_confidence",
+            "publication_cluster",
+            "source_batch_cluster",
+            "literature_alias_final",
+            "three_d_folder_exact",
+            "three_d_view_status",
+            "three_d_super_path",
+            "three_d_unit_path",
+            "three_d_wire_path",
+            "three_d_view_count",
             "framework_series",
             "framework_series_key",
             "related_parent_series",
