@@ -533,6 +533,82 @@ def score_for_protein(protein_row):
     df["score_protein_specific_only"] = df["protein_specific_compatibility"]
     df["score_general_only"] = df["general_hof_suitability"]
 
+    # ------------------------------------------------------------
+    # Two-objective normalized screening logic
+    #
+    # 1. Infiltration / post-synthetic entry:
+    #    First require the pore window and cavity to be larger than
+    #    the selected protein dimensions. Only then rank by chemistry.
+    #
+    # 2. Interaction / surface-contact:
+    #    Rank by chemistry without using pore size as an exclusion
+    #    criterion or as a ranking term.
+    # ------------------------------------------------------------
+
+    df["chemistry_match_raw"] = (
+        df[
+            [
+                "hbond_score_metric",
+                "electrostatic_score_metric",
+                "hydrophobic_aromatic_score_metric",
+                "hof_functional_score_metric",
+            ]
+        ]
+        .mean(axis=1)
+        .clip(0, 1)
+    )
+
+    # Percentile normalization prevents one component scale from
+    # dominating simply because it has a wider numerical range.
+    df["chemistry_match_normalised"] = percentile(df["chemistry_match_raw"])
+    df["surface_accessibility_percentile"] = percentile(
+        num(df.get("ASA_m2_g_best", np.nan)).fillna(0)
+    )
+    df["void_fraction_percentile"] = percentile(
+        num(df.get("AV_volume_fraction_best", np.nan)).fillna(0)
+    )
+
+    df["infiltration_window_margin_A"] = (
+        df["window_size_A"] - p_min
+        if not pd.isna(p_min) and p_min > 0
+        else np.nan
+    )
+
+    df["infiltration_cavity_margin_A"] = (
+        df["cavity_size_A"] - p_eff
+        if not pd.isna(p_eff) and p_eff > 0
+        else np.nan
+    )
+
+    df["infiltration_window_pass"] = (
+        df["window_size_A"] >= p_min
+        if not pd.isna(p_min) and p_min > 0
+        else False
+    )
+
+    df["infiltration_cavity_pass"] = (
+        df["cavity_size_A"] >= p_eff
+        if not pd.isna(p_eff) and p_eff > 0
+        else False
+    )
+
+    df["infiltration_size_pass"] = (
+        df["infiltration_window_pass"]
+        & df["infiltration_cavity_pass"]
+    )
+
+    # Used only as a secondary tie-breaker after strict size feasibility
+    # and chemistry ranking. It is not blended into the primary score.
+    df["infiltration_openness_tiebreaker"] = (
+        0.50 * df["surface_accessibility_percentile"]
+        + 0.50 * df["void_fraction_percentile"]
+    ).clip(0, 1)
+
+    # Interaction does not use Df, Di or any pore-size exclusion rule.
+    # Surface area is retained only as a secondary tie-breaker.
+    df["interaction_score"] = df["chemistry_match_normalised"]
+    df["infiltration_score"] = df["chemistry_match_normalised"]
+
     # Functionality hypotheses
     df["pred_surface_engagement"] = (
         0.35 * df["surface_size_score_metric"]
@@ -744,6 +820,66 @@ def radar_chart(row):
     ax.set_title("Metric profile", pad=18)
     return fig
 
+
+def render_html_table(table_df, max_height=520):
+    """Render a reliable, scrollable light-mode HTML table."""
+    table_df = table_df.copy()
+
+    for column in table_df.columns:
+        if pd.api.types.is_float_dtype(table_df[column]):
+            table_df[column] = table_df[column].round(3)
+
+    html = table_df.to_html(index=False, escape=True)
+
+    st.markdown(
+        f"""
+        <div style="
+            width:100%;
+            overflow-x:auto;
+            overflow-y:auto;
+            max-height:{max_height}px;
+            border:1px solid #dddddd;
+            border-radius:10px;
+            background:#ffffff;
+            margin-bottom:12px;">
+            <style>
+                .hof-static-table table {{
+                    border-collapse: collapse;
+                    width: max-content;
+                    min-width: 100%;
+                    background: #ffffff;
+                    color: #111111;
+                    font-size: 0.86rem;
+                }}
+                .hof-static-table th {{
+                    position: sticky;
+                    top: 0;
+                    background: #f1f3f5;
+                    color: #111111;
+                    padding: 9px;
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    white-space: nowrap;
+                    z-index: 2;
+                }}
+                .hof-static-table td {{
+                    background: #ffffff;
+                    color: #111111;
+                    padding: 8px;
+                    border: 1px solid #e3e3e3;
+                    white-space: nowrap;
+                }}
+                .hof-static-table tr:nth-child(even) td {{
+                    background: #fafafa;
+                }}
+            </style>
+            <div class="hof-static-table">{html}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 # ============================================================
 # Sidebar controls
 # ============================================================
@@ -756,56 +892,55 @@ for _, r in proteins.iterrows():
     uid = str(r.get("uniprot_id", r.get("UniProtID", "")))
     protein_labels.append(f"{pname} | {uid}")
 
-selected_protein_label = st.sidebar.selectbox("Target protein", protein_labels, index=0)
+protein_options = ["— Select a target protein —"] + protein_labels
+
+selected_protein_label = st.sidebar.selectbox(
+    "Target protein",
+    protein_options,
+    index=0
+)
+
+# ============================================================
+# Blank landing page before target selection
+# ============================================================
+
+st.title("HOF–Protein Compatibility Recommender")
+
+if selected_protein_label == "— Select a target protein —":
+    st.markdown(
+        """
+        Select a target protein from the sidebar to begin screening.
+        """
+    )
+    st.stop()
+
 protein_idx = protein_labels.index(selected_protein_label)
 protein_row = proteins.iloc[protein_idx]
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("Scoring model")
+st.sidebar.subheader("Screening objective")
 
-model_display = {
-    "rank_fusion_25_75": "Rank fusion 25/75 — recommended",
-    "rank_fusion_40_60": "Rank fusion 40/60 — conservative",
-    "additive_metric_only": "Additive metric-only",
-    "gated_protein_specific": "Gated protein-specific",
-    "protein_specific_only": "Protein-specific only control",
-    "general_only": "General HOF only control",
-}
-
-selected_model_label = st.sidebar.selectbox(
-    "Ranking logic",
-    list(model_display.values()),
-    index=0
-)
-
-selected_model = [k for k, v in model_display.items() if v == selected_model_label][0]
-
-score_col_map = {
-    "rank_fusion_25_75": "score_rank_fusion_25_75",
-    "rank_fusion_40_60": "score_rank_fusion_40_60",
-    "additive_metric_only": "score_additive_metric_only",
-    "gated_protein_specific": "score_gated_protein_specific",
-    "protein_specific_only": "score_protein_specific_only",
-    "general_only": "score_general_only",
-}
-
-score_col = score_col_map[selected_model]
-
-st.sidebar.caption(
-    "Default uses rank fusion: 25% general HOF suitability percentile + 75% protein-specific compatibility percentile."
-)
-
-mode_filter = st.sidebar.selectbox(
-    "Functionality view",
+screening_objective = st.sidebar.radio(
+    "Choose the physical question",
     [
-        "Overall best",
-        "Surface engagement / immobilisation",
-        "Protein encapsulation",
-        "Interfacial catalysis / microenvironment effect",
-        "Mesoporous hosting / confinement",
+        "Infiltration / post-synthetic entry",
+        "Interaction / surface-contact compatibility",
     ],
-    index=0
+    index=0,
 )
+
+if screening_objective == "Infiltration / post-synthetic entry":
+    st.sidebar.caption(
+        "Two-stage logic: first require pore window and cavity dimensions "
+        "to exceed the selected protein dimensions; then rank feasible HOFs "
+        "by normalized chemistry compatibility."
+    )
+else:
+    st.sidebar.caption(
+        "Interaction logic: rank by normalized chemistry compatibility. "
+        "Pore size is not used as a filter or ranking term, so narrow-pore "
+        "HOFs are retained."
+    )
 
 top_n = st.sidebar.slider("Number of recommendations", 5, 50, 20, 5)
 
@@ -816,40 +951,59 @@ collapse_series = st.sidebar.checkbox("Collapse framework-series variants", valu
 require_3d = st.sidebar.checkbox("Require 3D HTML view", value=False)
 require_lit = st.sidebar.checkbox("Require literature/citation", value=False)
 require_fg = st.sidebar.checkbox("Require functional-group typing success", value=False)
-min_score = st.sidebar.slider("Minimum score", 0.0, 1.0, 0.0, 0.01)
+min_score = st.sidebar.slider("Minimum normalized chemistry percentile", 0.0, 1.0, 0.0, 0.01)
 search_text = st.sidebar.text_input("Search CIF / series / family", "")
 
 # ============================================================
 # Main app
 # ============================================================
 
-st.title("HOF–Protein Compatibility Recommender")
-
 st.markdown(
     """
-This interface ranks HOF candidates using **metric-only HOF–protein compatibility scoring**.
-Literature, family and framework-series labels are used only for **filtering, grouping, display and validation**;
-they are not used as scoring evidence.
+This interface provides two normalized, metric-only screening routes.
+
+**Infiltration / post-synthetic entry** first applies a strict geometric feasibility rule:
+the HOF limiting aperture and cavity dimensions must exceed the selected protein dimensions.
+Feasible candidates are then ranked by normalized chemistry compatibility.
+
+**Interaction / surface-contact compatibility** ranks candidates by normalized chemistry
+compatibility without excluding small-pore HOFs. Pore size is intentionally disregarded
+because whole-protein entry is not required.
+
+Literature, family and framework-series labels are used only for filtering, grouping,
+display and validation; they are not used as scoring evidence.
 """
 )
 
-st.info(
-    "Default model: rank_fusion_25_75. This was selected because it improved protein-specific discrimination compared with additive and gated scoring."
-)
-
-# Score
 df = score_for_protein(protein_row)
 
-if mode_filter == "Surface engagement / immobilisation":
-    df["sort_score"] = 0.75 * df[score_col] + 0.25 * df["pred_surface_engagement"]
-elif mode_filter == "Protein encapsulation":
-    df["sort_score"] = 0.75 * df[score_col] + 0.25 * df["pred_encapsulation"]
-elif mode_filter == "Interfacial catalysis / microenvironment effect":
-    df["sort_score"] = 0.75 * df[score_col] + 0.25 * df["pred_interfacial_catalysis"]
-elif mode_filter == "Mesoporous hosting / confinement":
-    df["sort_score"] = 0.75 * df[score_col] + 0.25 * df["pred_mesoporous_hosting"]
+if screening_objective == "Infiltration / post-synthetic entry":
+    strict_count = int(df["infiltration_size_pass"].fillna(False).sum())
+
+    if strict_count == 0:
+        st.warning(
+            "No strict post-synthetic infiltration candidates were found for this protein. "
+            "This means no HOF simultaneously met both rules: Df ≥ protein minimum dimension "
+            "and Di ≥ protein effective diameter. This does not exclude growth-mediated "
+            "encapsulation during HOF formation."
+        )
+
+    df = df[df["infiltration_size_pass"].fillna(False)].copy()
+    df["sort_score"] = df["infiltration_score"]
+    df["secondary_sort_score"] = df["infiltration_openness_tiebreaker"]
+    ranking_note = (
+        "Strict infiltration route: size feasibility first, normalized chemistry second. "
+        "Openness is used only as a tie-breaker."
+    )
 else:
-    df["sort_score"] = df[score_col]
+    df["sort_score"] = df["interaction_score"]
+    df["secondary_sort_score"] = df["surface_accessibility_percentile"]
+    ranking_note = (
+        "Interaction route: normalized chemistry ranking without pore-size filtering. "
+        "Surface accessibility is used only as a tie-breaker."
+    )
+
+st.info(ranking_note)
 
 df = df[df["sort_score"] >= min_score].copy()
 
@@ -871,7 +1025,10 @@ if search_text.strip():
     )
     df = df[mask].copy()
 
-df = df.sort_values("sort_score", ascending=False)
+df = df.sort_values(
+    ["sort_score", "secondary_sort_score"],
+    ascending=[False, False]
+)
 
 if collapse_series:
     df = df.drop_duplicates("series_key_eval", keep="first").copy()
@@ -883,8 +1040,8 @@ m1, m2, m3, m4, m5 = st.columns(5)
 m1.metric("Protein", str(protein_row.get("protein_name", "Unknown"))[:18])
 m2.metric("UniProt", str(protein_row.get("uniprot_id", protein_row.get("UniProtID", "")))[:12])
 m3.metric("Ranked HOFs", len(df))
-m4.metric("Total HOF rows", len(core))
-m5.metric("Pairwise rows", len(pairwise))
+m4.metric("Objective", "Infiltration" if screening_objective.startswith("Infiltration") else "Interaction")
+m5.metric("Total HOF rows", len(core))
 
 with st.expander("Protein surface descriptor details"):
     pshow_cols = [
@@ -896,7 +1053,7 @@ with st.expander("Protein surface descriptor details"):
         "largest_hydrophobic_patch_area_A2",
     ]
     pshow_cols = [c for c in pshow_cols if c in proteins.columns]
-    st.table(pd.DataFrame([protein_row[pshow_cols]]))
+    render_html_table(pd.DataFrame([protein_row[pshow_cols]]))
 
 st.markdown("---")
 
@@ -908,11 +1065,15 @@ table_cols = [
     "series_label_eval",
     "family_label_eval",
     "sort_score",
-    score_col,
-    "general_hof_suitability",
-    "protein_specific_compatibility",
-    "general_percentile",
-    "protein_specific_percentile",
+    "chemistry_match_normalised",
+    "chemistry_match_raw",
+    "interaction_score",
+    "infiltration_score",
+    "infiltration_size_pass",
+    "infiltration_window_margin_A",
+    "infiltration_cavity_margin_A",
+    "surface_accessibility_percentile",
+    "void_fraction_percentile",
     "Df_A_best",
     "Di_A_best",
     "AV_volume_fraction_best",
@@ -921,12 +1082,11 @@ table_cols = [
     "electrostatic_score_metric",
     "hydrophobic_aromatic_score_metric",
     "hof_functional_score_metric",
-    "predicted_functionality",
     "series_size_eval",
     "has_literature_eval",
 ]
 table_cols = [c for c in table_cols if c in df.columns]
-st.table(df[table_cols])
+render_html_table(df[table_cols])
 
 csv = df[table_cols].to_csv(index=False).encode("utf-8")
 st.download_button(
@@ -954,14 +1114,14 @@ for i, row in df.iterrows():
         else:
             st.markdown("<span class='tag warn'>Literature metadata: not found</span>", unsafe_allow_html=True)
 
-        st.markdown(f"<span class='tag'>Predicted mode: {row.get('predicted_functionality', 'NA')}</span>", unsafe_allow_html=True)
+        st.markdown(f"<span class='tag'>Objective: {screening_objective}</span>", unsafe_allow_html=True)
 
     with c2:
         a, b, c, d = st.columns(4)
-        a.metric("Sort score", fmt(row.get("sort_score", np.nan), 3))
-        b.metric("Model score", fmt(row.get(score_col, np.nan), 3))
-        c.metric("Protein match", fmt(row.get("protein_specific_compatibility", np.nan), 3))
-        d.metric("General HOF", fmt(row.get("general_hof_suitability", np.nan), 3))
+        a.metric("Objective score", fmt(row.get("sort_score", np.nan), 3))
+        b.metric("Chemistry percentile", fmt(row.get("chemistry_match_normalised", np.nan), 3))
+        c.metric("H-bond match", fmt(row.get("hbond_score_metric", np.nan), 3))
+        d.metric("Electrostatic match", fmt(row.get("electrostatic_score_metric", np.nan), 3))
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs(
         ["Why recommended", "Metrics", "Polygon chart", "3D view", "Literature"]
@@ -989,17 +1149,21 @@ for i, row in df.iterrows():
     with tab2:
         metric_cols = [
             "sort_score",
-            score_col,
-            "general_hof_suitability",
-            "protein_specific_compatibility",
-            "general_percentile",
-            "protein_specific_percentile",
-            "pore_size_score_metric",
-            "accessibility_score_metric",
-            "hof_functional_score_metric",
+            "chemistry_match_normalised",
+            "chemistry_match_raw",
+            "interaction_score",
+            "infiltration_score",
+            "infiltration_size_pass",
+            "infiltration_window_pass",
+            "infiltration_cavity_pass",
+            "infiltration_window_margin_A",
+            "infiltration_cavity_margin_A",
+            "surface_accessibility_percentile",
+            "void_fraction_percentile",
             "hbond_score_metric",
             "electrostatic_score_metric",
             "hydrophobic_aromatic_score_metric",
+            "hof_functional_score_metric",
             "Df_A_best",
             "Di_A_best",
             "Dif_A_best",
@@ -1008,13 +1172,9 @@ for i, row in df.iterrows():
             "hbond_donor_group_count",
             "hbond_acceptor_group_count",
             "series_size_eval",
-            "pred_surface_engagement",
-            "pred_encapsulation",
-            "pred_interfacial_catalysis",
-            "pred_mesoporous_hosting",
         ]
         metric_cols = [c for c in metric_cols if c in row.index]
-        st.table(pd.DataFrame({"metric": metric_cols, "value": [row.get(c) for c in metric_cols]}))
+        render_html_table(pd.DataFrame({"metric": metric_cols, "value": [row.get(c) for c in metric_cols]}))
 
     with tab3:
         st.pyplot(radar_chart(row))
@@ -1048,5 +1208,5 @@ for i, row in df.iterrows():
 # Footer
 st.markdown("---")
 st.caption(
-    "Scoring uses only HOF/protein metrics. Literature/family/series information is used for display, filtering, grouping, and validation only."
+    "Two-objective scoring uses normalized HOF/protein metrics only. Literature/family/series information is used for display, filtering, grouping, and validation only."
 )
