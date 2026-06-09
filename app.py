@@ -234,39 +234,48 @@ def fmt(x, n=3):
         return "NA"
 
 def render_html_table(table_df, max_height=520):
-    """Render a stable light-mode table without the interactive dataframe frontend."""
+    """Render a stable light-mode table inside an HTML component."""
     table_df = table_df.copy()
     for column in table_df.columns:
         if pd.api.types.is_float_dtype(table_df[column]):
             table_df[column] = table_df[column].round(4)
-    html = table_df.to_html(index=False, escape=True)
-    st.markdown(
-        f"""
-        <style>
-        .hof-table-wrap {{
-            width: 100%; overflow-x: auto; overflow-y: auto;
-            max-height: {int(max_height)}px; border: 1px solid #dddddd;
-            border-radius: 10px; background: #ffffff; margin-bottom: 12px;
-        }}
-        .hof-table-wrap table {{
-            border-collapse: collapse; width: max-content; min-width: 100%;
-            background: #ffffff; color: #111111; font-size: 0.86rem;
-        }}
-        .hof-table-wrap th {{
-            position: sticky; top: 0; background: #f1f3f5; color: #111111;
-            padding: 9px; border: 1px solid #dddddd; text-align: left;
-            white-space: nowrap; z-index: 2;
-        }}
-        .hof-table-wrap td {{
-            background: #ffffff; color: #111111; padding: 8px;
-            border: 1px solid #e3e3e3; white-space: nowrap;
-        }}
-        .hof-table-wrap tr:nth-child(even) td {{ background: #fafafa; }}
-        </style>
-        <div class="hof-table-wrap">{html}</div>
-        """,
-        unsafe_allow_html=True,
-    )
+
+    html_table = table_df.to_html(index=False, escape=True, border=0)
+    html_doc = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <meta charset="utf-8">
+    <style>
+      html, body {{ margin: 0; padding: 0; background: #ffffff; color: #111111; }}
+      .hof-table-wrap {{
+        width: 100%; overflow-x: auto; overflow-y: auto;
+        max-height: {int(max_height)}px; border: 1px solid #dddddd;
+        border-radius: 10px; background: #ffffff;
+        font-family: Arial, Helvetica, sans-serif;
+      }}
+      table {{
+        border-collapse: collapse; width: max-content; min-width: 100%;
+        background: #ffffff; color: #111111; font-size: 13px;
+      }}
+      th {{
+        position: sticky; top: 0; background: #f1f3f5; color: #111111;
+        padding: 9px; border: 1px solid #dddddd; text-align: left;
+        white-space: nowrap; z-index: 2;
+      }}
+      td {{
+        background: #ffffff; color: #111111; padding: 8px;
+        border: 1px solid #e3e3e3; white-space: nowrap;
+      }}
+      tr:nth-child(even) td {{ background: #fafafa; }}
+    </style>
+    </head>
+    <body>
+      <div class="hof-table-wrap">{html_table}</div>
+    </body>
+    </html>
+    """
+    components.html(html_doc, height=min(int(max_height) + 20, 680), scrolling=True)
 
 def canonical_fallback(x):
     s = str(x)
