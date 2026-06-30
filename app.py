@@ -19,6 +19,25 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+
+st.markdown("""
+<style>
+[data-testid="stImage"],
+[data-testid="stPlotlyChart"],
+[data-testid="stPyplot"] {
+    max-width: 620px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+[data-testid="stVerticalBlock"] img {
+    max-width: 620px !important;
+    height: auto !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
 # ============================================================
 # Strong light-mode CSS
 # ============================================================
