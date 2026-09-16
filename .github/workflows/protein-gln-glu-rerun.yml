@@ -1,6 +1,9 @@
 name: Protein Gln-Glu correction audit
 
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - protein-rerun-gln-glu-20260916
