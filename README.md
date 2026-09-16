@@ -1,6 +1,6 @@
 # Protein-oriented HOF prioritization
 
-Streamlit decision-support interface synchronized to the frozen manuscript analysis.
+Streamlit decision-support interface synchronized to the corrected frozen manuscript analysis.
 
 ## Final analysis universe
 
@@ -8,6 +8,10 @@ Streamlit decision-support interface synchronized to the frozen manuscript analy
 - 651 functionally typed retained HOFs
 - 550 typed framework-series ranking units
 - 65,100 HOF–protein chemistry records reconstructed at app start
+
+## Protein-surface correction
+
+The live protein descriptor table has been synchronized to the completed Gln/Glu maximum-ASA correction audit. The corrected Tien/Wilke reference maxima are Gln = 225 Å² and Glu = 223 Å². The full 100-protein rerun changed ranking-input surface descriptors for 8/100 proteins; the interface now uses those corrected values.
 
 ## Frozen scoring model
 
@@ -41,10 +45,10 @@ Literature metadata, family labels, and 3D availability are displayed for tracea
 
 - `HOF_MASTER_WORKBOOK_functional_group_typed_FIXED.xlsx`
 - `HOF_DATABASE_FINAL_CURATED_V1.xlsx`
-- `protein_descriptors_FINAL_100_UI_MIN.csv`
+- `protein_descriptors_FINAL_100_UI_MIN.csv` (corrected Gln/Glu rerun)
 - `hof_db/` exact-normalized HTML structure views
 
-The app rebuilds the complete 651 x 100 pairwise layer from these audited source tables at startup so the live UI cannot silently drift from the manuscript equations.
+The app rebuilds the complete 651 x 100 pairwise layer from these audited source tables at startup so the live UI uses the same corrected protein ranking inputs and manuscript equations.
 
 ## Interpretation
 
