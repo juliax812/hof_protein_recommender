@@ -9,6 +9,24 @@ Streamlit decision-support interface synchronized to the corrected frozen manusc
 - 550 typed framework-series ranking units
 - 65,100 HOF–protein chemistry records reconstructed at app start
 
+## Quick start
+
+From the repository root:
+
+```bash
+python -m pip install -r requirements.txt
+streamlit run app.py
+```
+
+The live app expects these repository resources to remain in place:
+
+- `HOF_MASTER_WORKBOOK_functional_group_typed_FIXED.xlsx`
+- `HOF_DATABASE_FINAL_CURATED_V1.xlsx`
+- `protein_descriptors_FINAL_100_UI_MIN.csv`
+- `hof_db/` for exact-normalized HTML structure views
+
+The repository is intended as the interactive decision-support implementation. The frozen supplementary software/data package accompanying the manuscript remains the authoritative reproduction package for the reported numerical results.
+
 ## Protein-surface correction
 
 The live protein descriptor table has been synchronized to the completed Gln/Glu maximum-ASA correction audit. The corrected Tien/Wilke reference maxima are Gln = 225 Å² and Glu = 223 Å². The full 100-protein rerun changed ranking-input surface descriptors for 8/100 proteins; the interface now uses those corrected values.
@@ -49,6 +67,16 @@ Literature metadata, family labels, and 3D availability are displayed for tracea
 - `hof_db/` exact-normalized HTML structure views
 
 The app rebuilds the complete 651 x 100 pairwise layer from these audited source tables at startup so the live UI uses the same corrected protein ranking inputs and manuscript equations.
+
+## Data provenance and licensing
+
+This repository combines original analysis code and derived research tables with information originating from external scientific resources, including HOFSyn, UniProt and the AlphaFold Protein Structure Database. Third-party source materials and source-derived content remain subject to the terms and licences of their original providers; this repository does not relicense those underlying third-party resources.
+
+A software licence for the original repository code will be added after author/institutional confirmation. Until then, no additional reuse licence is granted beyond applicable law and the terms of the original data sources.
+
+## Citation
+
+Citation metadata are provided in `CITATION.cff`. Please also cite the associated manuscript when using the reported analysis or results.
 
 ## Interpretation
 
