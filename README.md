@@ -74,7 +74,7 @@ This repository combines original analysis code and derived research tables with
 
 HOFSyn is cited in the manuscript as: Wang, T. *HOFSyn: The First Structure and Synthesis Dataset for Hydrogen-Bonded Organic Frameworks (HOFs)*, Figshare, Version 2 (2025), DOI: 10.6084/m9.figshare.28856483.v2.
 
-A software licence for the original repository code will be added after author/institutional confirmation. Until then, no additional reuse licence is granted beyond applicable law and the terms of the original data sources.
+The original software code in this repository is released under the MIT License (see `LICENSE`). The MIT License applies to the repository's original software code and does not relicense third-party source materials or source-derived content, which remain subject to the terms and licences of their original providers.
 
 ## Repository organization
 
