@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use this software or the associated analysis, please cite the repository and the accompanying manuscript."
+title: "Protein-oriented HOF prioritization"
+type: software
+authors:
+  - family-names: "Xu"
+    given-names: "Julia Ao-Chen"
+  - family-names: "Liu"
+    given-names: "Si"
+  - family-names: "Xue"
+    given-names: "Jueyi"
+  - family-names: "Shi"
+    given-names: "Hongyu"
+  - family-names: "Yun"
+    given-names: "Josh"
+  - family-names: "Liang"
+    given-names: "Kang"
+repository-code: "https://github.com/juliax812/hof_protein_recommender"
+preferred-citation:
+  type: article
+  title: "A protein oriented hydrogen bonded organic framework database for function guided materials prioritization"
+  authors:
+    - family-names: "Xu"
+      given-names: "Julia Ao-Chen"
+    - family-names: "Liu"
+      given-names: "Si"
+    - family-names: "Xue"
+      given-names: "Jueyi"
+    - family-names: "Shi"
+      given-names: "Hongyu"
+    - family-names: "Yun"
+      given-names: "Josh"
+    - family-names: "Liang"
+      given-names: "Kang"
+  journal: "npj Computational Materials"
