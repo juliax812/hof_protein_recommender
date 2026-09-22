@@ -72,11 +72,17 @@ The app rebuilds the complete 651 x 100 pairwise layer from these audited source
 
 This repository combines original analysis code and derived research tables with information originating from external scientific resources, including HOFSyn, UniProt and the AlphaFold Protein Structure Database. Third-party source materials and source-derived content remain subject to the terms and licences of their original providers; this repository does not relicense those underlying third-party resources.
 
+HOFSyn is cited in the manuscript as: Wang, T. *HOFSyn: The First Structure and Synthesis Dataset for Hydrogen-Bonded Organic Frameworks (HOFs)*, Figshare, Version 2 (2025), DOI: 10.6084/m9.figshare.28856483.v2.
+
 A software licence for the original repository code will be added after author/institutional confirmation. Until then, no additional reuse licence is granted beyond applicable law and the terms of the original data sources.
+
+## Repository organization
+
+The files used by the current app are listed above. Earlier development-stage data files are kept under `legacy/` for provenance only and are not loaded by `app.py`.
 
 ## Citation
 
-Citation metadata are provided in `CITATION.cff`. Please also cite the associated manuscript when using the reported analysis or results.
+Citation metadata are provided in `CITATION.cff`. The manuscript has not yet been published, so journal/DOI metadata will be added to the citation file after acceptance.
 
 ## Interpretation
 
