@@ -16,20 +16,3 @@ authors:
   - family-names: "Liang"
     given-names: "Kang"
 repository-code: "https://github.com/juliax812/hof_protein_recommender"
-preferred-citation:
-  type: article
-  title: "A protein oriented hydrogen bonded organic framework database for function guided materials prioritization"
-  authors:
-    - family-names: "Xu"
-      given-names: "Julia Ao-Chen"
-    - family-names: "Liu"
-      given-names: "Si"
-    - family-names: "Xue"
-      given-names: "Jueyi"
-    - family-names: "Shi"
-      given-names: "Hongyu"
-    - family-names: "Yun"
-      given-names: "Josh"
-    - family-names: "Liang"
-      given-names: "Kang"
-  journal: "npj Computational Materials"
