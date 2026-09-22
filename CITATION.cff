@@ -2,6 +2,7 @@ cff-version: 1.2.0
 message: "If you use this software or the associated analysis, please cite the repository and the accompanying manuscript."
 title: "Protein-oriented HOF prioritization"
 type: software
+license: MIT
 authors:
   - family-names: "Xu"
     given-names: "Julia Ao-Chen"
