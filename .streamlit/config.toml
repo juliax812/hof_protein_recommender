@@ -7,5 +7,3 @@ textColor = "#111111"
 
 [server]
 headless = true
-enableCORS = false
-enableXsrfProtection = false
